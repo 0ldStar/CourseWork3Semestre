@@ -3,6 +3,7 @@
 
 int main() {
     Tree tree;
+    tree.open("write.dat", ios::binary);
     char str1[] = "ABOBA1";
     char str2[] = "ABOBA2";
     char str3[] = "ABOBA3";
@@ -12,15 +13,24 @@ int main() {
     char str7[] = "ABOBA7";
     char str8[] = "ABOBA8";
     char str9[] = "ABOBA9";
-    tree.insert(str1);
-    tree.insert(str2);
-    tree.insert(str3);
-    tree.insert(str4);
-    tree.insert(str5);
-    tree.insert(str6);
-    tree.insert(str7);
-    tree.insert(str8);
-    tree.insert(str9);
+    tree << str1;
+    tree << str2;
+    tree << str3;
+    tree << str4;
+    tree << str5;
+    tree << str6;
+    tree << str7;
+    tree << str8;
+    tree << str9;
+//    tree.insert(str1);
+//    tree.insert(str2);
+//    tree.insert(str3);
+//    tree.insert(str4);
+//    tree.insert(str5);
+//    tree.insert(str6);
+//    tree.insert(str7);
+//    tree.insert(str8);
+//    tree.insert(str9);
     tree.printTree();
     Tree tr1;
     tr1.insert(str1);
@@ -40,6 +50,5 @@ int main() {
     Tree tr2;
     in >> tr2;
     in.close();
-
     return 0;
 }

@@ -10,17 +10,17 @@ Tree::Tree() {
     peakCount = 0;
 }
 
-Tree::~Tree() {
-    freeNode(root);
-}
+//Tree::~Tree() {
+//    freeNode(root);
+//}
 
-void Tree::freeNode(Node *node) {
-    if (node != nullptr) {
-        freeNode(node->left);
-        freeNode(node->right);
-        delete node;
-    }
-}
+//void Tree::freeNode(Node *node) {
+//    if (node != nullptr) {
+//        freeNode(node->left);
+//        freeNode(node->right);
+//        delete node;
+//    }
+//}
 
 
 Tree::Tree(Tree &a) {
@@ -39,6 +39,18 @@ ostream &operator<<(ostream &os, const Tree &tree) {
     return os;
 }
 
+Tree &Tree::operator<<(char *str) {
+    addNode(&root, str);
+    peakCount++;
+    return *this;
+}
+
+Tree &Tree::operator>>(Tree *copy) {
+
+    return *this;
+}
+
+
 istream &operator>>(istream &os, Tree &tree) {
     tree.root = new Node;
     os.read((char *) tree.root, sizeof(Node));
@@ -46,14 +58,20 @@ istream &operator>>(istream &os, Tree &tree) {
 }
 
 void Tree::createNode(Node **node, char *str) {
-    Node *newNode = new Node;
+//    Node *newNode = new Node;
+    Node tmp;
+    write((char *) &tmp, sizeof(Node));
+    Node *newNode = tellg();
     size_t len = strlen(str);
-    newNode->str = new char[len];
-    newNode->strLen = len;
+//    newNode.str = new char[len];
+    char tmp[len];
+    write((char *) tmp, len * sizeof(char));
+    newNode.str = new char[len];
+    newNode.strLen = len;
     for (int i = 0; i < len; ++i) {
-        newNode->str[i] = str[i];
+        newNode.str[i] = str[i];
     }
-    *node = newNode;
+    *node = &newNode;
 }
 
 void Tree::copyNode(Node *node, char *str, int mode) {
@@ -126,3 +144,5 @@ void Tree::printNode(Node *node) {
 void Tree::printTree() {
     printNode(root);
 }
+
+

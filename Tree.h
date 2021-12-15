@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
-
+#pragma pack (pop)
 using namespace std;
 
 class Tree : public fstream {
@@ -19,7 +19,7 @@ public:
 
     Tree(Tree &a);
 
-    ~Tree();
+//    ~Tree();
 
     void printTree();
 
@@ -27,13 +27,17 @@ public:
 
     friend ostream &operator<<(ostream &os, const Tree &tree);
 
+    Tree &operator<<(char *str);
+
+    Tree &operator>>(Tree *copy);
+
     friend istream &operator>>(istream &os, Tree &tree);
 
 private:
 
     int addNode(Node **node, char *str);
 
-    void freeNode(Node *node);
+//    void freeNode(Node *node);
 
     void copyNode(Node *node, char *str, int mode);
 
