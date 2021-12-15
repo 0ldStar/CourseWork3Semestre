@@ -10,6 +10,8 @@ class MiddleNode {
 public:
     MiddleNode();
 
+    ~MiddleNode();
+
     int m;
     MiddleNode *left;
     MiddleNode *right;

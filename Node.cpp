@@ -5,6 +5,13 @@
 #include "Node.h"
 
 Node::Node() {
-    count = 0;
+    strLen = 0;
+    m = 0;
     str = nullptr;
+    left = nullptr;
+    right = nullptr;
+}
+
+Node::~Node() {
+    if (!str) delete str;
 }

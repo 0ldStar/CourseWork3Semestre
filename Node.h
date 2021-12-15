@@ -5,13 +5,18 @@
 #ifndef COURSEWORK_3_SEMESTER_NODE_H
 #define COURSEWORK_3_SEMESTER_NODE_H
 
-#include "MiddleNode.h"
+#include <cstring>
 
-class Node : public MiddleNode {
+class Node {
 public:
     Node();
 
-    int count;
+    ~Node();
+
+    int m;
+    Node *left;
+    Node *right;
+    size_t strLen;
     char *str;
 };
 

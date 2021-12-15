@@ -9,3 +9,6 @@ MiddleNode::MiddleNode() {
     left = nullptr;
     right = nullptr;
 }
+MiddleNode::~MiddleNode() {
+
+}

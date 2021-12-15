@@ -9,21 +9,41 @@
 #include "Node.h"
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
-class Tree {
+class Tree : public fstream {
 public:
     Tree();
 
     Tree(Tree &a);
 
-    friend ostream &operator<<(ostream &os, char *str);
+    ~Tree();
 
-    friend ostream &operator>>(ostream &os, char *str);
+    void printTree();
+
+    void insert(char *str);
+
+    friend ostream &operator<<(ostream &os, const Tree &tree);
+
+    friend istream &operator>>(istream &os, Tree &tree);
 
 private:
-    MiddleNode *root;
+
+    int addNode(Node **node, char *str);
+
+    void freeNode(Node *node);
+
+    void copyNode(Node *node, char *str, int mode);
+
+    int checkNode(Node **node, char *str);
+
+    void createNode(Node **node, char *str);
+
+    void printNode(Node *node);
+
+    Node *root;
     int level;
     int peakCount;
 };
