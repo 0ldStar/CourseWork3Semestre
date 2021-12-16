@@ -22,10 +22,13 @@ public:
 
     ~Tree();
 
+    void free();
+
     void toBinary();
 
     void LoadTree();
 
+    Node &operator[](int ind);
 //    void printTree();
 
     void insert(char *str);
@@ -40,8 +43,12 @@ public:
 
     friend istream &operator>>(istream &os, Tree &tree);
 
+    int getSize();
+
 private:
     long long PutTree(Node *q);
+
+    Node *findInd(Node *node, int *curInd, int needInd);
 
     Node *GetTree(long long pos);
 

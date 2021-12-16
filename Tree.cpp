@@ -29,6 +29,11 @@ Tree::Tree(Tree &a) {
     peakCount = a.peakCount;
 }
 
+void Tree::free() {
+    freeNode(root);
+    root = nullptr;
+}
+
 void Tree::insert(char *str) {
     addNode(&root, str);
     peakCount++;
@@ -49,17 +54,13 @@ Tree &Tree::operator<<(ifstream &is) {
     char buf[100];
     while (!is.eof()) {
         is >> buf;
-//        cout << buf << '|' << endl;
+        cout << buf << endl;
         addNode(&root, buf);
         peakCount++;
     }
     return *this;
 }
 
-//Tree &Tree::operator>>(ostream &os) {
-//    printNode(root, os);
-//    return *this;
-//}
 
 long long Tree::PutTree(Node *q) {
     if (q == nullptr) return FNULL;
@@ -71,7 +72,7 @@ long long Tree::PutTree(Node *q) {
     pos = tellp();                            // Адрес вершины
     CUR.strLen = q->strLen;            // Длина строки (ЗПД)
     write((char *) &CUR, sizeof(FNode));                // Сохранить вершину
-    write(q->str, CUR.strLen * sizeof(char));           // Сохранить строку
+    if (q->str) write(q->str, CUR.strLen * sizeof(char));           // Сохранить строку
     return pos;
 }
 
@@ -202,8 +203,32 @@ void Tree::printNode(Node *node, ostream &os) {
     }
 }
 
-//void Tree::printTree() {
-//    printNode(root);
-//}
+Node *Tree::findInd(Node *node, int *curInd, int needInd) {
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (*curInd == needInd && node->str != nullptr) {
+        return node;
+    }
+    if (node->str != nullptr) {
+        (*curInd)++;
+    }
+    Node *tmp = findInd(node->left, curInd, needInd);
+    if (!tmp)
+        tmp = findInd(node->right, curInd, needInd);
+    return tmp;
+}
+
+
+Node &Tree::operator[](int ind) {
+    int tmp = 0;
+    Node *node = findInd(root, &tmp, ind);
+    return *node;
+}
+
+int Tree::getSize() {
+    return peakCount;
+}
+
 
 

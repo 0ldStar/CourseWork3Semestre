@@ -1,93 +1,253 @@
 #include <iostream>
 #include "Tree.h"
-#include <fstream>
 
 int menu();
 
 int main() {
-//    Tree tree;
-//    tree.open("../write.dat", ios::out | ios::binary);
-//    if (tree.is_open()) {
-//        char str1[] = "ABOBA1";
-//        char str2[] = "ABOBA2";
-//        char str3[] = "ABOBA3";
-//        char str4[] = "ABOBA4";
-//        char str5[] = "ABOBA5";
-//        char str6[] = "ABOBA6";
-//        char str7[] = "ABOBA7";
-//        char str8[] = "ABOBA8";
-//        char str9[] = "ABOBA9";
-//        tree << str1;
-//        tree << str2;
-//        tree << str3;
-//        tree << str4;
-//        tree << str5;
-//        tree << str6;
-//        tree << str7;
-//        tree << str8;
-//        tree << str9;
-//        cout << tree;
-//        tree.toBinary();
-//    }
-//    ofstream os("../write.txt", ios::out);
-//    if (os.is_open()) {
-//        os << tree;
-//    }
-//    os.close();
-//    tree.close();
-//    cout << endl;
-//    Tree tr;
-//    tr.open("../write.dat", ios::in | ios::binary);
-//    if (tr.is_open()) {
-//        ifstream is("../read.txt", ios::in);
-//        if (is.is_open()) {
-//            tr << is;
-//            cout << tr;
-//        }
-//        is.close();
-//    }
-//    tr.close();
     menu();
     return 0;
 }
 
-int menu() {
-    int error = 0, menu_pos;
-    Tree tree;
-    cout << "Choose the option\n";
-    cout << "# 1 Read data from txt\n";
-    cout << "# 2 Write data in txt\n";
-    cin >> menu_pos;
-    switch (menu_pos) {
-        case 1: {
-            string name;
-            cout << "Enter path to file: ";
-            cin >> name;
-            ifstream is(name, ios::in);
-            if (is.is_open()) {
-                tree << is;
-            } else {
-                error = 1;
-            }
-            is.close();
-            break;
-        }
-        case 2: {
-            string name;
-            cout << "Enter path to file: ";
-            cin >> name;
-            ofstream os(name, ios::out);
-            if (os.is_open()) {
-                os << tree;
-            } else {
-                error = 1;
-            }
-            os.close();
-            break;
-        }
-        default:
-            break;
+int inputFile(Tree &tree) {
+    int error = 0;
+    string name;
+    cout << "Enter path to file: ";
+    cin >> name;
+    ifstream is(name, ios::in);
+    if (is.is_open()) {
+        tree << is;
+    } else {
+        cout << "Can`t open file!\n";
+        error = 1;
     }
-    cout << '\n' << tree;
+    is.close();
     return error;
 }
+
+int outputFile(Tree &tree) {
+    int error = 0;
+    string name;
+    cout << "Enter path to file: ";
+    cin >> name;
+    ofstream os(name, ios::out);
+    if (os.is_open()) {
+        os << tree;
+    } else {
+        cout << "Can`t open file!";
+        error = 1;
+    }
+    os.close();
+    return error;
+}
+
+int addNewData(Tree &tree) {
+    int error = 0;
+    string str;
+    cout << "Enter string:";
+    cin >> str;
+    tree.insert((char *) str.c_str());
+    cout << "Do you want to save changes to text file ? (1-Yes/2-No)";
+    int choose;
+    while (true) {
+        cin >> choose;
+        if (choose != 1 && choose != 2) {
+            cout << "Incorrect number";
+            cout << "Do you want to save changes to text file ? (1-Yes/2-No)";
+        } else {
+            if (choose == 1) {
+                error = outputFile(tree);
+            }
+            break;
+        }
+
+    }
+    return error;
+}
+
+void printData(Tree &tree) {
+    cout << "Print all tree or element from index? (1/2)";
+    int choose;
+    while (true) {
+        cin >> choose;
+        if (choose != 1 && choose != 2) {
+            cout << "Incorrect number";
+            cout << "Print all tree or element from index? (1/2)";
+        } else {
+            if (choose == 1) {
+                cout << tree << endl;
+            } else if (choose == 2) {
+                if (tree.getSize() == 0) {
+                    cout << "Tree is empty\n";
+                    break;
+                }
+                cout << "Current tree have " << tree.getSize() << " elements\n";
+                cout << "You can choose one of them [0-" << tree.getSize() - 1 << "]\nEnter index: ";
+                int index;
+                while (true) {
+                    cin >> index;
+                    if (index >= 0 && index < tree.getSize()) {
+                        Node node = tree[index];
+                        for (int i = 0; i < node.strLen; ++i) {
+                            cout << node.str[i];
+                        }
+                        cout << endl;
+                        break;
+                    } else {
+                        cout << "Incorrect index";
+                        cout << "Current tree have " << tree.getSize() << " elements\n";
+                        cout << "You can choose one of them [0-" << tree.getSize() - 1
+                             << "]\nEnter index: ";
+                    }
+
+                }
+            }
+            break;
+        }
+
+    }
+
+}
+
+int clearData(Tree &tree, int &exit) {
+    int error = 0;
+    cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/2-No)";
+    int choose;
+    while (true) {
+        cin >> choose;
+        if (choose != 1 && choose != 2) {
+            cout << "Incorrect number";
+            cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/2-No)";
+        } else {
+            if (choose == 1) {
+                tree.free();
+                cout << "Yeap";
+                tree.close();
+                tree.open("../write.dat", ios::in | ios::out | ios::binary | ios::trunc);
+                if (!tree.is_open()) {
+                    error = -1;
+                    exit = 1;
+                }
+                tree.LoadTree();
+            }
+            break;
+        }
+
+    }
+    return error;
+}
+
+int menu() {
+    int error = 0, menu_pos = -1, exit = 0;
+    Tree tree;
+    tree.open("../write.dat", ios::in | ios::out | ios::binary);
+    if (tree.is_open()) {
+        tree.LoadTree();
+        while (!exit) {
+            cout << "Choose the option\n";
+            cout << "# 0 Exit\n";
+            cout << "# 1 Read data from txt\n";
+            cout << "# 2 Write data in txt\n";
+            cout << "# 3 Add new data to base\n";
+            cout << "# 4 Print data to Terminal\n";
+            cout << "# 5 Edit data\n";
+            cout << "# 6 Delete data\n";
+            cout << "# 7 Clear data base\n";
+            cin >> menu_pos;
+//            cin.clear();
+            if (menu_pos >= 0 && menu_pos <= 7) {
+                switch (menu_pos) {
+                    case 0: {
+                        exit = 1;
+                        break;
+                    }
+                    case 1: {
+                        error = inputFile(tree); // how much writes read;
+                        break;
+                    }
+                    case 2: {
+                        error = outputFile(tree);
+                        break;
+                    }
+                    case 3: {
+                        error = addNewData(tree);
+                        break;
+                    }
+                    case 4: {
+                        printData(tree);
+                        break;
+                    }
+                    case 5: {
+                        cout << "Current tree have " << tree.getSize() << " elements\n";
+                        cout << "You can choose one of them [0-" << tree.getSize() - 1 << "] for edit\nEnter index: ";
+                        int index;
+                        while (true) {
+                            if (tree.getSize() == 0) {
+                                cout << "Tree is empty\n";
+                                break;
+                            }
+                            cin >> index;
+                            if (index >= 0 && index < tree.getSize()) {
+                                for (int i = 0; i < tree[index].strLen; ++i)
+                                    cout << tree[index].str[i];
+                                cout << endl;
+                                string str;
+                                cout << "Enter string: ";
+                                cin >> str;
+                                tree[index].str = (char *) str.c_str();
+                                tree[index].strLen = str.length();
+                                break;
+                            } else {
+                                cout << "Incorrect index";
+                                cout << "Current tree have " << tree.getSize() << " elements\n";
+                                cout << "You can choose one of them [0-" << tree.getSize() - 1
+                                     << "] for edit\nEnter index: ";
+                            }
+                        }
+                        break;
+                    }
+                    case 6: {
+                        cout << "Current tree have " << tree.getSize() << " elements\n";
+                        cout << "You can choose one of them [0-" << tree.getSize() - 1 << "] for delete\nEnter index: ";
+                        int index;
+                        while (true) {
+                            cin >> index;
+                            if (index >= 0 && index < tree.getSize()) {
+                                for (int i = 0; i < tree[index].strLen; ++i)
+                                    cout << tree[index].str[i];
+                                cout << endl;
+                                Node *node = &tree[index];
+                                free(node->str);
+                                node->str = nullptr;
+                                node->strLen = 0;
+                                break;
+                            } else {
+                                cout << "Incorrect index";
+                                cout << "Current tree have " << tree.getSize() << " elements\n";
+                                cout << "You can choose one of them [0-" << tree.getSize() - 1
+                                     << "] for delete\nEnter index: ";
+                            }
+                        }
+                        break;
+                    }
+                    case 7: {
+                        error = clearData(tree, exit);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+        for (int i = 0; i < tree[0].strLen; ++i) {
+            cout << tree[0].str[i];
+        }
+        tree.toBinary();
+        tree.close();
+    } else {
+        error = -1;
+    }
+
+    return error;
+}
+// in the end if changed data base, do you want save changes
+// do you want view text entry
