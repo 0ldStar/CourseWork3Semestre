@@ -10,17 +10,17 @@ Tree::Tree() {
     peakCount = 0;
 }
 
-//Tree::~Tree() {
-//    freeNode(root);
-//}
+Tree::~Tree() {
+    freeNode(root);
+}
 
-//void Tree::freeNode(Node *node) {
-//    if (node != nullptr) {
-//        freeNode(node->left);
-//        freeNode(node->right);
-//        delete node;
-//    }
-//}
+void Tree::freeNode(Node *node) {
+    if (node != nullptr) {
+        freeNode(node->left);
+        freeNode(node->right);
+        delete node;
+    }
+}
 
 
 Tree::Tree(Tree &a) {
@@ -34,8 +34,8 @@ void Tree::insert(char *str) {
     peakCount++;
 }
 
-ostream &operator<<(ostream &os, const Tree &tree) {
-    os.write((char *) tree.root, sizeof(Node));
+ostream &operator<<(ostream &os, Tree &tree) {
+    tree.printNode(tree.root, os);
     return os;
 }
 
@@ -45,11 +45,71 @@ Tree &Tree::operator<<(char *str) {
     return *this;
 }
 
-Tree &Tree::operator>>(Tree *copy) {
-
+Tree &Tree::operator<<(ifstream &is) {
+    char buf[100];
+    while (!is.eof()) {
+        is >> buf;
+//        cout << buf << '|' << endl;
+        addNode(&root, buf);
+        peakCount++;
+    }
     return *this;
 }
 
+//Tree &Tree::operator>>(ostream &os) {
+//    printNode(root, os);
+//    return *this;
+//}
+
+long long Tree::PutTree(Node *q) {
+    if (q == nullptr) return FNULL;
+    FNode CUR;
+    CUR.m = q->m; // Текущая вершина - локальная переменная
+    long long pos;
+    CUR.left = PutTree(q->left);
+    CUR.right = PutTree(q->right);
+    pos = tellp();                            // Адрес вершины
+    CUR.strLen = q->strLen;            // Длина строки (ЗПД)
+    write((char *) &CUR, sizeof(FNode));                // Сохранить вершину
+    write(q->str, CUR.strLen * sizeof(char));           // Сохранить строку
+    return pos;
+}
+
+
+void Tree::toBinary() {
+    long long pos0;
+    write((char *) &pos0, sizeof(long));     // Резервировать место под указатель
+    pos0 = PutTree(root);                  // Сохранить дерево
+    seekp(ios_base::beg);
+    write((char *) &pos0, sizeof(long));
+}
+
+Node *Tree::GetTree(long long pos) {           // Вход - адрес вершины в файле
+    if (pos == FNULL) return nullptr;  // Результат - указатель на
+    Node *q = new Node;                       // вершину поддерева в памяти
+    FNode A;// Текущая вершина из файла -
+    seekp(pos);
+    read((char *) &A, sizeof(FNode));
+    q->strLen = A.strLen;
+    if (q->strLen == 0) {
+        q->str = nullptr;
+    } else {
+        q->str = new char[A.strLen];               // Загрузка строки - ЗПД
+        read((char *) q->str, A.strLen);
+        peakCount++;
+    }
+    q->m = A.m;
+    q->left = GetTree(A.left);
+    q->right = GetTree(A.right);
+
+    return q;
+}
+
+void Tree::LoadTree() {
+    long long phead;
+    read((char *) &phead, sizeof(long));
+    this->root = GetTree(phead);
+}
 
 istream &operator>>(istream &os, Tree &tree) {
     tree.root = new Node;
@@ -58,20 +118,17 @@ istream &operator>>(istream &os, Tree &tree) {
 }
 
 void Tree::createNode(Node **node, char *str) {
-//    Node *newNode = new Node;
-    Node tmp;
-    write((char *) &tmp, sizeof(Node));
-    Node *newNode = tellg();
+    Node *newNode = new Node;
     size_t len = strlen(str);
-//    newNode.str = new char[len];
-    char tmp[len];
-    write((char *) tmp, len * sizeof(char));
-    newNode.str = new char[len];
-    newNode.strLen = len;
+    newNode->str = new char[len];
+    newNode->strLen = len;
+    newNode->m = 0;
+    newNode->left = nullptr;
+    newNode->right = nullptr;
     for (int i = 0; i < len; ++i) {
-        newNode.str[i] = str[i];
+        newNode->str[i] = str[i];
     }
-    *node = &newNode;
+    *node = newNode;
 }
 
 void Tree::copyNode(Node *node, char *str, int mode) {
@@ -85,6 +142,7 @@ void Tree::copyNode(Node *node, char *str, int mode) {
     delete node->str;
     node->str = nullptr;
     node->strLen = 0;
+    node->m = 2;
     if (mode == 1) {
         node->left = newNode;
         createNode(&node->right, str);
@@ -131,18 +189,21 @@ int Tree::addNode(Node **node, char *str) {
     return status;
 }
 
-void Tree::printNode(Node *node) {
+void Tree::printNode(Node *node, ostream &os) {
     if (node != nullptr) {
         if (node->str != nullptr) {
-            cout << node->str << ' ';
+            for (int i = 0; i < node->strLen; ++i) {
+                os << node->str[i];
+            }
+            os << ' ';
         }
-        printNode(node->left);
-        printNode(node->right);
+        printNode(node->left, os);
+        printNode(node->right, os);
     }
 }
 
-void Tree::printTree() {
-    printNode(root);
-}
+//void Tree::printTree() {
+//    printNode(root);
+//}
 
 

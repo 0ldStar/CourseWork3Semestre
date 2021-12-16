@@ -20,5 +20,4 @@ public:
     char *str;
 };
 
-
 #endif //COURSEWORK_3_SEMESTER_NODE_H
