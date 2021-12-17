@@ -33,6 +33,8 @@ public:
 
     void insert(char *str);
 
+    void update();
+
     friend ostream &operator<<(ostream &os, Tree &tree);
 
     Tree &operator<<(char *str);

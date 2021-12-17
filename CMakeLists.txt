@@ -3,4 +3,4 @@ project(CourseWork_3_Semester)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(CourseWork_3_Semester main.cpp MiddleNode.cpp Node.cpp Tree.cpp Tree.h FNode.cpp FNode.h)
+add_executable(CourseWork_3_Semester src/main.cpp src/MiddleNode.cpp src/Node.cpp src/Tree.cpp src/Tree.h src/FNode.cpp src/FNode.h src/menu.cpp src/menu.h)

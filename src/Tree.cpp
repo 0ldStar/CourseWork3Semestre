@@ -38,7 +38,11 @@ void Tree::insert(char *str) {
     addNode(&root, str);
     peakCount++;
 }
-
+void Tree::update() {
+    root = nullptr;
+    level = 0;
+    peakCount = 0;
+}
 ostream &operator<<(ostream &os, Tree &tree) {
     tree.printNode(tree.root, os);
     return os;
