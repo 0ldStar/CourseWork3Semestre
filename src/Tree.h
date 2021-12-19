@@ -5,7 +5,6 @@
 #ifndef COURSEWORK_3_SEMESTER_TREE_H
 #define COURSEWORK_3_SEMESTER_TREE_H
 
-#include "MiddleNode.h"
 #include "Node.h"
 #include "FNode.h"
 #include <fstream>
