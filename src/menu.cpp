@@ -16,7 +16,9 @@ int menu() {
     Tree tree;
     tree.open("../data-sets/write.dat", ios::in | ios::out | ios::binary);
     if (tree.is_open()) {
-        tree.LoadTree();
+         tree.LoadTree();
+        tree.close();
+        tree.open("../data-sets/write.dat", ios::out | ios::binary);
         while (!exit) {
             cout << "Choose the option\n";
             cout << "# 0 Exit\n";
@@ -70,6 +72,9 @@ int menu() {
 //        for (int i = 0; i < tree[0].strLen; ++i) {
 //            cout << tree[0].str[i];
 //        }
+//        cout << tree.fail() << endl;
+//        cout << tree.tellp() << endl;
+//        cout << tree.tellg() << endl;
         tree.toBinary();
         tree.close();
     } else {
