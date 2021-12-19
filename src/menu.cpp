@@ -5,20 +5,22 @@
 #include "Tree.h"
 #include "menu.h"
 
-// in the end if changed data base, do you want save changes
-// do you want view text entry
-// report how many data was read from binary
-// error data base is not open
-// are you sure that want to delete this element?
-// read - success
 int menu() {
-    int error = 0, menu_pos = -1, exit = 0;
+    int error, menuPos, exit, newDataCount;
+    bool editFlag;
     Tree tree;
-    tree.open("../data-sets/write.dat", ios::in | ios::out | ios::binary);
+
+    tree.open(PATH, ios::in | ios::out | ios::binary);
+    error = 0;
+    menuPos = -1;
+    exit = 0;
+    newDataCount = 0;
+    editFlag = false;
     if (tree.is_open()) {
-         tree.LoadTree();
-        tree.close();
-        tree.open("../data-sets/write.dat", ios::out | ios::binary);
+        int b_size = tree.getSize();
+        tree.LoadTree();
+        cout << "Was read " << tree.getSize() - b_size << " strings from data base\n";
+        reopen(tree);
         while (!exit) {
             cout << "Choose the option\n";
             cout << "# 0 Exit\n";
@@ -29,15 +31,16 @@ int menu() {
             cout << "# 5 Edit data\n";
             cout << "# 6 Delete data\n";
             cout << "# 7 Clear data base\n";
-            cin >> menu_pos;
-            if (menu_pos >= 0 && menu_pos <= 7) {
-                switch (menu_pos) {
+            cin >> menuPos;
+            if (menuPos >= 0 && menuPos <= 7) {
+                switch (menuPos) {
                     case 0: {
                         exit = 1;
                         break;
                     }
                     case 1: {
-                        error = inputFile(tree); // how much writes read;
+                        error = inputFile(tree, newDataCount);
+                        if (!error) editFlag = true;
                         break;
                     }
                     case 2: {
@@ -45,7 +48,9 @@ int menu() {
                         break;
                     }
                     case 3: {
-                        error = addNewData(tree);
+                        addNewData(tree);
+                        editFlag = true;
+                        newDataCount++;
                         break;
                     }
                     case 4: {
@@ -54,44 +59,51 @@ int menu() {
                     }
                     case 5: {
                         editData(tree);
+                        if (!error) editFlag = true;
                         break;
                     }
                     case 6: {
                         deleteData(tree);
+                        if (!error) editFlag = true;
                         break;
                     }
                     case 7: {
                         error = clearData(tree, exit);
+                        if (!error) editFlag = true;
                         break;
                     }
                     default:
                         break;
                 }
             }
+            if (newDataCount >= AUTOSAVECOUNT) {
+                tree.toBinary();
+                reopen(tree);
+                newDataCount = 0;
+            }
         }
-//        for (int i = 0; i < tree[0].strLen; ++i) {
-//            cout << tree[0].str[i];
-//        }
-//        cout << tree.fail() << endl;
-//        cout << tree.tellp() << endl;
-//        cout << tree.tellg() << endl;
+        askToSave(tree, editFlag);
         tree.toBinary();
         tree.close();
     } else {
+        cout << "Data base read error!!!";
         error = -1;
     }
 
     return error;
 }
 
-int inputFile(Tree &tree) {
+int inputFile(Tree &tree, int &count) {
     int error = 0;
     string name;
+    int b_size = tree.getSize();
     cout << "Enter path to file: ";
     cin >> name;
     ifstream is(name, ios::in);
     if (is.is_open()) {
         tree << is;
+        cout << "Was read " << tree.getSize() - b_size << " strings\n";
+        count += tree.getSize() - b_size;
     } else {
         cout << "Can`t open file!\n";
         error = 1;
@@ -101,13 +113,18 @@ int inputFile(Tree &tree) {
 }
 
 int outputFile(Tree &tree) {
+    if (tree.getSize() == 0) {
+        cout << "Tree is empty\n";
+        return 0;
+    }
     int error = 0;
     string name;
     cout << "Enter path to file: ";
     cin >> name;
-    ofstream os(name, ios::out);
+    ofstream os(name, ios::out | ios::app);
     if (os.is_open()) {
         os << tree;
+        cout << "Was wrote " << tree.getSize() << " elements\n";
     } else {
         cout << "Can`t open file!";
         error = 1;
@@ -116,28 +133,11 @@ int outputFile(Tree &tree) {
     return error;
 }
 
-int addNewData(Tree &tree) {
-    int error = 0;
+void addNewData(Tree &tree) {
     string str;
     cout << "Enter string:";
     cin >> str;
     tree.insert((char *) str.c_str());
-    cout << "Do you want to save changes to text file ? (1-Yes/2-No)";
-    int choose;
-    while (true) {
-        cin >> choose;
-        if (choose != 1 && choose != 2) {
-            cout << "Incorrect number!\n";
-            cout << "Do you want to save changes to text file ? (1-Yes/2-No)";
-        } else {
-            if (choose == 1) {
-                error = outputFile(tree);
-            }
-            break;
-        }
-
-    }
-    return error;
 }
 
 void printData(Tree &tree) {
@@ -188,13 +188,13 @@ void printData(Tree &tree) {
 
 int clearData(Tree &tree, int &exit) {
     int error = 0;
-    cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/2-No)";
+    cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/0-No)";
     int choose;
     while (true) {
         cin >> choose;
-        if (choose != 1 && choose != 2) {
+        if (choose != 1 && choose != 0) {
             cout << "Incorrect number!\n";
-            cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/2-No)";
+            cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/0-No)";
         } else {
             if (choose == 1) {
                 tree.free();
@@ -251,23 +251,61 @@ void editData(Tree &tree) {
 void deleteData(Tree &tree) {
     cout << "Current tree have " << tree.getSize() << " elements\n";
     cout << "You can choose one of them [0-" << tree.getSize() - 1 << "] for delete\nEnter index: ";
-    int index;
+    int index, choose;
     while (true) {
         cin >> index;
         if (index >= 0 && index < tree.getSize()) {
             for (int i = 0; i < tree[index].strLen; ++i)
                 cout << tree[index].str[i];
             cout << endl;
-            Node *node = &tree[index];
-            free(node->str);
-            node->str = nullptr;
-            node->strLen = 0;
+            cout << "Are you sure delete this element? (1-Yes/0-No)";
+            while (true) {
+                cin >> choose;
+                if (choose != 1 && choose != 0) {
+                    cout << "Incorrect number!\n";
+                    cout << "Are you sure delete this element? (1-Yes/0-No)";
+                } else {
+                    if (choose == 1) {
+                        Node *node = &tree[index];
+                        free(node->str);
+                        node->str = nullptr;
+                        node->strLen = 0;
+                    }
+                    break;
+                }
+
+            }
             break;
         } else {
             cout << "Incorrect index!\n";
             cout << "Current tree have " << tree.getSize() << " elements\n";
             cout << "You can choose one of them [0-" << tree.getSize() - 1
                  << "] for delete\nEnter index: ";
+        }
+    }
+}
+
+void reopen(Tree &tree) {
+    tree.close();
+    tree.open(PATH, ios::out | ios::binary);
+}
+
+void askToSave(Tree &tree, int editFlag) {
+    if (editFlag) {
+        cout << "Do you want to save changes to text file ? (1-Yes/0-No)";
+        int choose;
+        while (true) {
+            cin >> choose;
+            if (choose != 1 && choose != 0) {
+                cout << "Incorrect number!\n";
+                cout << "Do you want to save changed data to text file ? (1-Yes/0-No)";
+            } else {
+                if (choose == 1) {
+                    outputFile(tree);
+                }
+                break;
+            }
+
         }
     }
 }

@@ -1,7 +1,4 @@
-
-
-
-int menu();
+#include "menu.h"
 
 int main() {
     menu();

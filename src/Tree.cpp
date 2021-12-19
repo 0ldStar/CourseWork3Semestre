@@ -110,7 +110,6 @@ void Tree::LoadTree() {
     if (peek() != std::ifstream::traits_type::eof()) {
         long phead = FNULL;
         read((char *) &phead, sizeof(long));
-        cout << phead << "|\n";
         this->root = GetTree(phead);
     }
 }
