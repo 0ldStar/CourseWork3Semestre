@@ -1,16 +1,16 @@
 //
 // Created by 777 on 17.12.2021.
 //
-#include <iostream>
-#include "Tree.h"
 #include "menu.h"
 
 int menu() {
     int error, menuPos, exit, newDataCount;
     bool editFlag;
     Tree tree;
-
+    string buf;
     tree.open(PATH, ios::in | ios::out | ios::binary);
+//    signal(SIGINT, SIG_IGN);
+//    signal(SIGBREAK, SIG_IGN);
     error = 0;
     menuPos = -1;
     exit = 0;
@@ -19,19 +19,22 @@ int menu() {
     if (tree.is_open()) {
         int b_size = tree.getSize();
         tree.LoadTree();
-        cout << "Was read " << tree.getSize() - b_size << " strings from data base\n";
+        cout << "      Was read " << tree.getSize() - b_size << " strings from data base\n";
         reopen(tree);
         while (!exit) {
-            cout << "Choose the option\n";
-            cout << "# 0 Exit\n";
-            cout << "# 1 Read data from txt\n";
-            cout << "# 2 Write data in txt\n";
-            cout << "# 3 Add new data to base\n";
-            cout << "# 4 Print data to Terminal\n";
-            cout << "# 5 Edit data\n";
-            cout << "# 6 Delete data\n";
-            cout << "# 7 Clear data base\n";
+            cout << "############################################\n";
+            cout << "#           Choose the option              #\n";
+            cout << "#  1 Read data from txt                    #\n";
+            cout << "#  2 Write data in txt                     #\n";
+            cout << "#  3 Add new data to base from Terminal    #\n";
+            cout << "#  4 Print data to Terminal                #\n";
+            cout << "#  5 Edit data                             #\n";
+            cout << "#  6 Delete data                           #\n";
+            cout << "#  7 Clear data base                       #\n";
+            cout << "#  0 Exit                                  #\n";
+            cout << "############################################\n";
             cin >> menuPos;
+            ignoreChars(menuPos);
             if (menuPos >= 0 && menuPos <= 7) {
                 switch (menuPos) {
                     case 0: {
@@ -86,7 +89,7 @@ int menu() {
         tree.toBinary();
         tree.close();
     } else {
-        cout << "Data base read error!!!";
+        cerr << "Data base read error!!!";
         error = -1;
     }
 
@@ -105,7 +108,7 @@ int inputFile(Tree &tree, int &count) {
         cout << "Was read " << tree.getSize() - b_size << " strings\n";
         count += tree.getSize() - b_size;
     } else {
-        cout << "Can`t open file!\n";
+        cerr << "Can`t open file!\n";
         error = 1;
     }
     is.close();
@@ -148,8 +151,8 @@ void printData(Tree &tree) {
     cout << "Print all tree or element from index? (1/2)";
     int choose;
     while (true) {
-
         cin >> choose;
+        ignoreChars(choose);
         if (choose != 1 && choose != 2) {
             cout << "Incorrect number";
             cout << "Print all tree or element from index? (1/2)";
@@ -163,6 +166,7 @@ void printData(Tree &tree) {
                 int index;
                 while (true) {
                     cin >> index;
+                    ignoreChars(index);
                     if (index >= 0 && index < tree.getSize()) {
                         Node node = tree[index];
                         for (int i = 0; i < node.strLen; ++i) {
@@ -192,6 +196,7 @@ int clearData(Tree &tree, int &exit) {
     int choose;
     while (true) {
         cin >> choose;
+        ignoreChars(choose);
         if (choose != 1 && choose != 0) {
             cout << "Incorrect number!\n";
             cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/0-No)";
@@ -225,6 +230,7 @@ void editData(Tree &tree) {
     int index;
     while (true) {
         cin >> index;
+        ignoreChars(index);
         if (index >= 0 && index < tree.getSize()) {
             for (int i = 0; i < tree[index].strLen; ++i)
                 cout << tree[index].str[i];
@@ -254,6 +260,7 @@ void deleteData(Tree &tree) {
     int index, choose;
     while (true) {
         cin >> index;
+        ignoreChars(index);
         if (index >= 0 && index < tree.getSize()) {
             for (int i = 0; i < tree[index].strLen; ++i)
                 cout << tree[index].str[i];
@@ -261,6 +268,7 @@ void deleteData(Tree &tree) {
             cout << "Are you sure delete this element? (1-Yes/0-No)";
             while (true) {
                 cin >> choose;
+                ignoreChars(choose);
                 if (choose != 1 && choose != 0) {
                     cout << "Incorrect number!\n";
                     cout << "Are you sure delete this element? (1-Yes/0-No)";
@@ -296,6 +304,7 @@ void askToSave(Tree &tree, int editFlag) {
         int choose;
         while (true) {
             cin >> choose;
+            ignoreChars(choose);
             if (choose != 1 && choose != 0) {
                 cout << "Incorrect number!\n";
                 cout << "Do you want to save changed data to text file ? (1-Yes/0-No)";
@@ -308,4 +317,10 @@ void askToSave(Tree &tree, int editFlag) {
 
         }
     }
+}
+
+void ignoreChars(int &status) {
+    if (cin.fail()) status = -1;
+    cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }

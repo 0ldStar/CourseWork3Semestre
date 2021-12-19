@@ -5,8 +5,10 @@
 #ifndef COURSEWORK_3_SEMESTER_MENU_H
 #define COURSEWORK_3_SEMESTER_MENU_H
 
+#include <iostream>
 #include "Tree.h"
-
+#include <limits>
+#include <csignal>
 #define AUTOSAVECOUNT 10
 #define PATH "../data-sets/write.dat"
 
@@ -29,5 +31,7 @@ void reopen(Tree &tree);
 int menu();
 
 void askToSave(Tree &tree, int editFlag);
+
+void ignoreChars(int &status);
 
 #endif //COURSEWORK_3_SEMESTER_MENU_H
