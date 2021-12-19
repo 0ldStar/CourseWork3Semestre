@@ -38,11 +38,13 @@ void Tree::insert(char *str) {
     addNode(&root, str);
     peakCount++;
 }
+
 void Tree::update() {
     root = nullptr;
     level = 0;
     peakCount = 0;
 }
+
 ostream &operator<<(ostream &os, Tree &tree) {
     tree.printNode(tree.root, os);
     return os;
@@ -58,7 +60,7 @@ Tree &Tree::operator<<(ifstream &is) {
     char buf[100];
     while (!is.eof()) {
         is >> buf;
-        cout << buf << endl;
+//        cout << buf << endl;
         addNode(&root, buf);
         peakCount++;
     }
@@ -66,22 +68,30 @@ Tree &Tree::operator<<(ifstream &is) {
 }
 
 
-long long Tree::PutTree(Node *q) {
+long Tree::PutTree(Node *q) {
     if (q == nullptr) return FNULL;
     FNode CUR;
-    CUR.m = q->m; // Текущая вершина - локальная переменная
-    long long pos;
+    CUR.m = q->m;
+    long pos;
     CUR.left = PutTree(q->left);
     CUR.right = PutTree(q->right);
     pos = tellp();                            // Адрес вершины
     CUR.strLen = q->strLen;            // Длина строки (ЗПД)
     write((char *) &CUR, sizeof(FNode));                // Сохранить вершину
     if (q->str) write(q->str, CUR.strLen * sizeof(char));           // Сохранить строку
+    cout << pos << endl;
     return pos;
 }
 
 
 void Tree::toBinary() {
+//    if (root != nullptr) {
+//        long pos0;
+//        write((char *) &pos0, sizeof(long));     // Резервировать место под указатель
+//        pos0 = PutTree(root);                  // Сохранить дерево
+//        seekp(ios_base::beg);
+//        write((char *) &pos0, sizeof(long));
+//    }
     long long pos0;
     write((char *) &pos0, sizeof(long));     // Резервировать место под указатель
     pos0 = PutTree(root);                  // Сохранить дерево
@@ -89,11 +99,11 @@ void Tree::toBinary() {
     write((char *) &pos0, sizeof(long));
 }
 
-Node *Tree::GetTree(long long pos) {           // Вход - адрес вершины в файле
+Node *Tree::GetTree(long pos) {           // Вход - адрес вершины в файле
     if (pos == FNULL) return nullptr;  // Результат - указатель на
     Node *q = new Node;                       // вершину поддерева в памяти
     FNode A;// Текущая вершина из файла -
-    seekp(pos);
+    seekg(pos);
     read((char *) &A, sizeof(FNode));
     q->strLen = A.strLen;
     if (q->strLen == 0) {
@@ -111,7 +121,14 @@ Node *Tree::GetTree(long long pos) {           // Вход - адрес верш
 }
 
 void Tree::LoadTree() {
-    long long phead;
+
+//    if (peek() != std::ifstream::traits_type::eof()) {
+//        long phead = LONG_MIN;
+//        read((char *) &phead, sizeof(long));
+//        cout << phead << "|\n";
+//        if (phead != LONG_MIN) this->root = GetTree(phead);
+//    }
+    long phead;
     read((char *) &phead, sizeof(long));
     this->root = GetTree(phead);
 }

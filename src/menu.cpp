@@ -9,6 +9,8 @@
 // do you want view text entry
 // report how many data was read from binary
 // error data base is not open
+// are you sure that want to delete this element?
+// read - success
 int menu() {
     int error = 0, menu_pos = -1, exit = 0;
     Tree tree;
@@ -65,9 +67,9 @@ int menu() {
                 }
             }
         }
-        for (int i = 0; i < tree[0].strLen; ++i) {
-            cout << tree[0].str[i];
-        }
+//        for (int i = 0; i < tree[0].strLen; ++i) {
+//            cout << tree[0].str[i];
+//        }
         tree.toBinary();
         tree.close();
     } else {
@@ -120,7 +122,7 @@ int addNewData(Tree &tree) {
     while (true) {
         cin >> choose;
         if (choose != 1 && choose != 2) {
-            cout << "Incorrect number";
+            cout << "Incorrect number!\n";
             cout << "Do you want to save changes to text file ? (1-Yes/2-No)";
         } else {
             if (choose == 1) {
@@ -186,12 +188,12 @@ int clearData(Tree &tree, int &exit) {
     while (true) {
         cin >> choose;
         if (choose != 1 && choose != 2) {
-            cout << "Incorrect number";
+            cout << "Incorrect number!\n";
             cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/2-No)";
         } else {
             if (choose == 1) {
                 tree.free();
-                cout << "Yeap";
+//                cout << "Yeap";
                 tree.close();
                 tree.update();
                 tree.open("../data-sets/write.dat", ios::in | ios::out | ios::binary | ios::trunc);
@@ -225,11 +227,15 @@ void editData(Tree &tree) {
             string str;
             cout << "Enter string: ";
             cin >> str;
-            tree[index].str = (char *) str.c_str();
+            free(tree[index].str);
+            tree[index].str = new char[str.length()];
+            for (int i = 0; i < str.length(); ++i) {
+                tree[index].str[i] = str.c_str()[i];
+            }
             tree[index].strLen = str.length();
             break;
         } else {
-            cout << "Incorrect index";
+            cout << "Incorrect index!\n";
             cout << "Current tree have " << tree.getSize() << " elements\n";
             cout << "You can choose one of them [0-" << tree.getSize() - 1
                  << "] for edit\nEnter index: ";
@@ -253,7 +259,7 @@ void deleteData(Tree &tree) {
             node->strLen = 0;
             break;
         } else {
-            cout << "Incorrect index";
+            cout << "Incorrect index!\n";
             cout << "Current tree have " << tree.getSize() << " elements\n";
             cout << "You can choose one of them [0-" << tree.getSize() - 1
                  << "] for delete\nEnter index: ";

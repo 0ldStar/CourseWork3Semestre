@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
-//#pragma pack (pop)
+
 using namespace std;
 
 class Tree : public fstream {
@@ -48,11 +48,11 @@ public:
     int getSize();
 
 private:
-    long long PutTree(Node *q);
+    long PutTree(Node *q);
 
     Node *findInd(Node *node, int *curInd, int needInd);
 
-    Node *GetTree(long long pos);
+    Node *GetTree(long pos);
 
     int addNode(Node **node, char *str);
 
