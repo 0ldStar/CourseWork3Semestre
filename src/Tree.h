@@ -17,17 +17,13 @@ class Tree : public fstream {
 public:
     Tree();
 
-    Tree(Tree &a);
+    explicit Tree(char *name);
 
-    ~Tree();
+//    void toBinary();
 
-    void free();
+//    void LoadTree();
 
-    void toBinary();
-
-    void LoadTree();
-
-    Node &operator[](int ind);
+//    Node &operator[](int ind);
 //    void printTree();
 
     void insert(char *str);
@@ -38,34 +34,36 @@ public:
 
     Tree &operator<<(char *str);
 
-//    Tree &operator>>(ostream &of);
+// //    Tree &operator>>(ostream &of);
 
     Tree &operator<<(ifstream &is);
 
-    friend istream &operator>>(istream &os, Tree &tree);
+//    friend istream &operator>>(istream &os, Tree &tree);
 
-    int getSize();
+//    int getSize();
 
 private:
-    long PutTree(Node *q);
+//    long PutTree(Node *q);
 
-    Node *findInd(Node *node, int *curInd, int needInd);
+//    Node *findInd(Node *node, int *curInd, int needInd);
 
-    Node *GetTree(long pos);
+//    Node *GetTree(long pos);
 
-    int addNode(Node **node, char *str);
+    int addNode(FNode *node, long long &pos, char *str);
 
-    void freeNode(Node *node);
+//    void freeNode(Node *node);
 
-    void copyNode(Node *node, char *str, int mode);
+    void copyNode(long long pos, char *str, int mode);
 
-    int checkNode(Node **node, char *str);
+    int checkNode(FNode *node, long long &pos, char *str);
 
-    void createNode(Node **node, char *str);
+    long long createNode(char *str, size_t len);
 
-    void printNode(Node *node, ostream &os);
+    FNode *readNode(long long pos);
 
-    Node *root;
+    void printNode(long long pos, ostream &os);
+
+    long long root;
     int level;
     int peakCount;
 };

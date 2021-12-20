@@ -13,7 +13,11 @@ class FNode {
 public:
     FNode();
 
-    int m;
+    FNode(const char *str, size_t len);
+
+    ~FNode();
+
+    int peakCount;
     long long left;
     long long right;
     size_t strLen;
