@@ -9,7 +9,7 @@
 #include "Tree.h"
 #include <limits>
 #include <csignal>
-#define AUTOSAVECOUNT 10
+
 #define PATH "../data-sets/write.dat"
 
 int inputFile(Tree &tree, int &count);
@@ -26,11 +26,7 @@ void editData(Tree &tree);
 
 void deleteData(Tree &tree);
 
-void reopen(Tree &tree);
-
 int menu();
-
-void askToSave(Tree &tree, int editFlag);
 
 void ignoreChars(int &status);
 

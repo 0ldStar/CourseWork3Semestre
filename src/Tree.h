@@ -18,11 +18,7 @@ public:
 
     explicit Tree(char *name);
 
-
-//    void LoadTree();
-
     FNode &operator[](int ind);
-//    void printTree();
 
     void insert(char *str);
 
@@ -34,25 +30,22 @@ public:
 
     Tree &operator<<(char *str);
 
+    void compression();
+
     void updatePeakCount();
-// //    Tree &operator>>(ostream &of);
 
     Tree &operator<<(ifstream &is);
 
-//    friend istream &operator>>(istream &os, Tree &tree);
 
     int getSize();
 
 private:
-//    long PutTree(Node *q);
 
     long long findInd(long long pos, int *curInd, int needInd);
 
-//    Node *GetTree(long pos);
-
     int addNode(FNode *node, long long &pos, char *str);
 
-    void copyNode(long long pos, char *str, int mode);
+    void copyNode(long long posNode, char *str, int mode);
 
     int checkNode(FNode *node, long long &pos, char *str);
 

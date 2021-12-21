@@ -6,7 +6,6 @@
 // Сжатие если m=0 и len = 0
 int menu() {
     int error, menuPos, exit, newDataCount;
-    bool editFlag;
     Tree tree(PATH);
     string buf;
 //    signal(SIGINT, SIG_IGN);
@@ -15,7 +14,6 @@ int menu() {
     menuPos = -1;
     exit = 0;
     newDataCount = 0;
-    editFlag = false;
     if (tree.is_open()) {
         cout << "      Was read " << tree.getSize() << " strings from data base\n";
 
@@ -41,7 +39,6 @@ int menu() {
                     }
                     case 1: {
                         error = inputFile(tree, newDataCount);
-                        if (!error) editFlag = true;
                         break;
                     }
                     case 2: {
@@ -50,7 +47,6 @@ int menu() {
                     }
                     case 3: {
                         addNewData(tree);
-                        editFlag = true;
                         newDataCount++;
                         break;
                     }
@@ -60,17 +56,14 @@ int menu() {
                     }
                     case 5: {
                         editData(tree);
-                        if (!error) editFlag = true;
                         break;
                     }
                     case 6: {
                         deleteData(tree);
-                        if (!error) editFlag = true;
                         break;
                     }
                     case 7: {
                         error = clearData(tree, exit);
-                        if (!error) editFlag = true;
                         break;
                     }
                     default:
@@ -281,26 +274,6 @@ void deleteData(Tree &tree) {
     }
 }
 
-void askToSave(Tree &tree, int editFlag) {
-    if (editFlag) {
-        cout << "Do you want to save changes to text file ? (1-Yes/0-No)";
-        int choose;
-        while (true) {
-            cin >> choose;
-            ignoreChars(choose);
-            if (choose != 1 && choose != 0) {
-                cout << "Incorrect number!\n";
-                cout << "Do you want to save changed data to text file ? (1-Yes/0-No)";
-            } else {
-                if (choose == 1) {
-                    outputFile(tree);
-                }
-                break;
-            }
-
-        }
-    }
-}
 
 void ignoreChars(int &status) {
     if (cin.fail()) status = -1;
