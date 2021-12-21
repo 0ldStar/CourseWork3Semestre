@@ -38,12 +38,16 @@ Tree::Tree(char *name) : basic_fstream(name, ios::in | ios::out | ios::binary) {
 
 void Tree::insert(char *str) {
     FNode *node = readNode(root);
-    cout << "WRITE TO " << tellp() << endl;
+//    cout << "WRITE TO " << tellp() << endl;
     addNode(node, root, str);
-    seekp(0, ios::beg);
     peakCount++;
-    cout << "PEAK " << tellp() << endl;
+    updatePeakCount();
+}
+
+void Tree::updatePeakCount() {
+    seekp(0, ios::beg);
     write((char *) &peakCount, sizeof(int));
+    seekp(0, ios::end);
 }
 
 void Tree::update() {
@@ -193,7 +197,7 @@ FNode *Tree::readNode(long long pos) {
 void Tree::printNode(long long pos, ostream &os) {
     FNode *node = readNode(pos);
     if (node != nullptr) {
-        if (node->peakCount == 0) {
+        if (node->peakCount == 0 && node->strLen != 0) {
             for (int i = 0; i < node->strLen; ++i) {
                 os << node->str[i];
             }
@@ -209,14 +213,14 @@ long long Tree::findInd(long long pos, int *curInd, int needInd) {
         return FNULL;
     }
     FNode *node = readNode(pos);
-    if (*curInd == needInd && node->peakCount == 0) {
+    if (*curInd == needInd && node->peakCount == 0 && node->strLen != 0) {
         return pos;
     }
-    if (node->peakCount == 0) {
+    if (node->peakCount == 0 && node->strLen != 0) {
         (*curInd)++;
     }
     long long tmp = findInd(node->left, curInd, needInd);
-    if (!tmp)
+    if (tmp == FNULL)
         tmp = findInd(node->right, curInd, needInd);
     return tmp;
 }
@@ -240,5 +244,9 @@ void Tree::editStr(int ind, const char *str, size_t len) {
     write((char *) &len, sizeof(size_t));
     write(str, len * sizeof(char));
     seekp(0, ios::end);
+    if (len == 0) {
+        peakCount--;
+        updatePeakCount();
+    }
 }
 

@@ -26,7 +26,7 @@ public:
 
     void insert(char *str);
 
-    void editStr(int ind,const char *str, size_t len);
+    void editStr(int ind, const char *str, size_t len);
 
     void update();
 
@@ -34,6 +34,7 @@ public:
 
     Tree &operator<<(char *str);
 
+    void updatePeakCount();
 // //    Tree &operator>>(ostream &of);
 
     Tree &operator<<(ifstream &is);

@@ -3,6 +3,7 @@
 //
 #include "menu.h"
 
+// Сжатие если m=0 и len = 0
 int menu() {
     int error, menuPos, exit, newDataCount;
     bool editFlag;
@@ -77,7 +78,6 @@ int menu() {
                 }
             }
         }
-        askToSave(tree, editFlag);
         tree.close();
     } else {
         cerr << "Data base read error!!!";
@@ -251,8 +251,9 @@ void deleteData(Tree &tree) {
         cin >> index;
         ignoreChars(index);
         if (index >= 0 && index < tree.getSize()) {
-            for (int i = 0; i < tree[index].strLen; ++i)
-                cout << tree[index].str[i];
+            FNode node = tree[index];
+            for (int i = 0; i < node.strLen; ++i)
+                cout << node.str[i];
             cout << endl;
             cout << "Are you sure delete this element? (1-Yes/0-No)";
             while (true) {
@@ -263,8 +264,8 @@ void deleteData(Tree &tree) {
                     cout << "Are you sure delete this element? (1-Yes/0-No)";
                 } else {
                     if (choose == 1) {
-                        FNode *node = &tree[index];
-                        node->strLen = 0;
+                        char tmp;
+                        tree.editStr(index, &tmp, 0);
                     }
                     break;
                 }
