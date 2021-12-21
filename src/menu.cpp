@@ -6,9 +6,8 @@
 int menu() {
     int error, menuPos, exit, newDataCount;
     bool editFlag;
-    Tree tree;
+    Tree tree(PATH);
     string buf;
-    tree.open(PATH, ios::in | ios::out | ios::binary);
 //    signal(SIGINT, SIG_IGN);
 //    signal(SIGBREAK, SIG_IGN);
     error = 0;
@@ -17,10 +16,8 @@ int menu() {
     newDataCount = 0;
     editFlag = false;
     if (tree.is_open()) {
-        int b_size = tree.getSize();
-        tree.LoadTree();
-        cout << "      Was read " << tree.getSize() - b_size << " strings from data base\n";
-        reopen(tree);
+        cout << "      Was read " << tree.getSize() << " strings from data base\n";
+
         while (!exit) {
             cout << "############################################\n";
             cout << "#           Choose the option              #\n";
@@ -79,14 +76,8 @@ int menu() {
                         break;
                 }
             }
-            if (newDataCount >= AUTOSAVECOUNT) {
-                tree.toBinary();
-                reopen(tree);
-                newDataCount = 0;
-            }
         }
         askToSave(tree, editFlag);
-        tree.toBinary();
         tree.close();
     } else {
         cerr << "Data base read error!!!";
@@ -168,7 +159,7 @@ void printData(Tree &tree) {
                     cin >> index;
                     ignoreChars(index);
                     if (index >= 0 && index < tree.getSize()) {
-                        Node node = tree[index];
+                        FNode node = tree[index];
                         for (int i = 0; i < node.strLen; ++i) {
                             cout << node.str[i];
                         }
@@ -202,7 +193,6 @@ int clearData(Tree &tree, int &exit) {
             cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/0-No)";
         } else {
             if (choose == 1) {
-                tree.free();
 //                cout << "Yeap";
                 tree.close();
                 tree.update();
@@ -238,12 +228,11 @@ void editData(Tree &tree) {
             string str;
             cout << "Enter string: ";
             cin >> str;
-            free(tree[index].str);
-            tree[index].str = new char[str.length()];
-            for (int i = 0; i < str.length(); ++i) {
-                tree[index].str[i] = str.c_str()[i];
+            if (str.length() > MAXLEN) {
+                cout << "Sorry, length is too long. Enter a string less than " << MAXLEN << " in length\n";
+            } else {
+                tree.editStr(index, str.c_str(), str.length());
             }
-            tree[index].strLen = str.length();
             break;
         } else {
             cout << "Incorrect index!\n";
@@ -274,9 +263,7 @@ void deleteData(Tree &tree) {
                     cout << "Are you sure delete this element? (1-Yes/0-No)";
                 } else {
                     if (choose == 1) {
-                        Node *node = &tree[index];
-                        free(node->str);
-                        node->str = nullptr;
+                        FNode *node = &tree[index];
                         node->strLen = 0;
                     }
                     break;
@@ -291,11 +278,6 @@ void deleteData(Tree &tree) {
                  << "] for delete\nEnter index: ";
         }
     }
-}
-
-void reopen(Tree &tree) {
-    tree.close();
-    tree.open(PATH, ios::out | ios::binary);
 }
 
 void askToSave(Tree &tree, int editFlag) {

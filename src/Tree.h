@@ -5,7 +5,6 @@
 #ifndef COURSEWORK_3_SEMESTER_TREE_H
 #define COURSEWORK_3_SEMESTER_TREE_H
 
-#include "Node.h"
 #include "FNode.h"
 #include <fstream>
 #include <iostream>
@@ -19,14 +18,15 @@ public:
 
     explicit Tree(char *name);
 
-//    void toBinary();
 
 //    void LoadTree();
 
-//    Node &operator[](int ind);
+    FNode &operator[](int ind);
 //    void printTree();
 
     void insert(char *str);
+
+    void editStr(int ind,const char *str, size_t len);
 
     void update();
 
@@ -40,18 +40,16 @@ public:
 
 //    friend istream &operator>>(istream &os, Tree &tree);
 
-//    int getSize();
+    int getSize();
 
 private:
 //    long PutTree(Node *q);
 
-//    Node *findInd(Node *node, int *curInd, int needInd);
+    long long findInd(long long pos, int *curInd, int needInd);
 
 //    Node *GetTree(long pos);
 
     int addNode(FNode *node, long long &pos, char *str);
-
-//    void freeNode(Node *node);
 
     void copyNode(long long pos, char *str, int mode);
 
@@ -64,7 +62,6 @@ private:
     void printNode(long long pos, ostream &os);
 
     long long root;
-    int level;
     int peakCount;
 };
 

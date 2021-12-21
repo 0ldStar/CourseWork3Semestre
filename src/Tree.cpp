@@ -6,27 +6,51 @@
 
 Tree::Tree() {
     root = FNULL;
-    level = 0;
     peakCount = 0;
 }
 
-Tree::Tree(char *name) : basic_fstream(name, ios::in | ios::out | ios::binary | ios::trunc) {
-    root = FNULL;
-    level = 0;
-    peakCount = 0;
+Tree::Tree(char *name) : basic_fstream(name, ios::in | ios::out | ios::binary) {
+    if (!is_open()) {
+        open(name, ios::in | ios::out | ios::binary | ios::trunc);
+        cout << "REOPEN\n";
+        root = FNULL;
+        peakCount = 0;
+        write((char *) &peakCount, sizeof(int));
+    } else {
+        seekg(0, fstream::end);
+        if (tellg() == 0) {
+            clear();
+            root = FNULL;
+            peakCount = 0;
+            write((char *) &peakCount, sizeof(int));
+            cout << "EMPTY\n";
+
+        } else {
+            seekg(0, ios::beg);
+            root = 4;
+            read((char *) &peakCount, sizeof(int));
+        }
+    }
+    cout << "POSG " << tellg() << endl;
+    cout << "POSP " << tellp() << endl;
 }
 
 
 void Tree::insert(char *str) {
     FNode *node = readNode(root);
+    cout << "WRITE TO " << tellp() << endl;
     addNode(node, root, str);
+    seekp(0, ios::beg);
     peakCount++;
+    cout << "PEAK " << tellp() << endl;
+    write((char *) &peakCount, sizeof(int));
 }
 
 void Tree::update() {
-    root = 0;
-    level = 0;
+    root = 4;
     peakCount = 0;
+    seekp(0, ios::beg);
+    write((char *) &peakCount, sizeof(int));
 }
 
 ostream &operator<<(ostream &os, Tree &tree) {
@@ -35,9 +59,7 @@ ostream &operator<<(ostream &os, Tree &tree) {
 }
 
 Tree &Tree::operator<<(char *str) {
-    FNode *node = readNode(root);
-    addNode(node, root, str);
-    peakCount++;
+    insert(str);
     return *this;
 }
 
@@ -45,9 +67,7 @@ Tree &Tree::operator<<(ifstream &is) {
     char buf[100];
     while (!is.eof()) {
         is >> buf;
-        FNode *node = readNode(root);
-        addNode(node, root, buf);
-        peakCount++;
+        insert(buf);
     }
     return *this;
 }
@@ -88,30 +108,15 @@ Tree &Tree::operator<<(ifstream &is) {
 //    return os;
 //}
 
-//void Tree::createNode(Node **node, char *str) {
-//    Node *newNode = new Node;
-//    size_t len = strlen(str);
-//    newNode->str = new char[len];
-//    newNode->strLen = len;
-//    newNode->peakCount = 0;
-//    newNode->left = nullptr;
-//    newNode->right = nullptr;
-//    for (int i = 0; i < len; ++i) {
-//        newNode->str[i] = str[i];
-//    }
-//    *node = newNode;
-//}
 long long Tree::createNode(char *str, size_t len) {
-//    seekp(fstream::end);
+    seekp(0, ios::end);
     long long pos = tellp();
     FNode node(str, len);
-    cout << "STRLEN " << node.strLen << endl;
-//    write((char *) &node, sizeof(FNode));
     write((char *) &node.left, sizeof(long long));
     write((char *) &node.right, sizeof(long long));
     write((char *) &node.peakCount, sizeof(int));
     write((char *) &node.strLen, sizeof(size_t));
-    write(node.str, node.strLen * sizeof(char));
+    write(node.str, MAXLEN * sizeof(char));
     return pos;
 }
 
@@ -121,34 +126,16 @@ void Tree::copyNode(long long pos_node, char *str, int mode) {
     if (curNode == nullptr) return;
     long long pos = createNode(curNode->str, curNode->strLen);
 
-//    write((char *) &newNode, sizeof(FNode));
-
-//    Node *newNode = new Node;
-//    size_t len = node->strLen;
-//    newNode->str = new char[len];
-//    newNode->strLen = len;
-//    for (int i = 0; i < len; ++i) {
-//        newNode->str[i] = node->str[i];
-//    }
-//    delete node->str;
-//    node->str = nullptr;
-//    node->strLen = 0;
-//    node->peakCount = 2; // TODO delete old node
+    // TODO delete old node
     long long newPos = createNode(str, strlen(str));
     seekp(pos_node);
     int m = 2;
     if (mode == 1) {
         write((char *) &pos, sizeof(long long));
         write((char *) &newPos, sizeof(long long));
-//        node->left = pos;
-//        node->right = createNode(str);
-//        createNode(&node->right, str);
     } else if (mode == 2) {
         write((char *) &newPos, sizeof(long long));
         write((char *) &pos, sizeof(long long));
-//        createNode(&node->left, str);
-//        node->left = createNode(str);
-//        node->right = pos;
     }
     write((char *) &m, sizeof(int));
     seekp(0, fstream::end);
@@ -195,8 +182,7 @@ FNode *Tree::readNode(long long pos) {
         read((char *) &node->right, sizeof(long long));
         read((char *) &node->peakCount, sizeof(int));
         read((char *) &node->strLen, sizeof(size_t));
-        node->str = new char[node->strLen];
-        read(node->str, node->strLen * sizeof(char));
+        read(node->str, MAXLEN * sizeof(char));
         seekg(0, fstream::end);
         return node;
     } else {
@@ -218,32 +204,41 @@ void Tree::printNode(long long pos, ostream &os) {
     }
 }
 
-//Node *Tree::findInd(Node *node, int *curInd, int needInd) {
-//    if (node == nullptr) {
-//        return nullptr;
-//    }
-//    if (*curInd == needInd && node->str != nullptr) {
-//        return node;
-//    }
-//    if (node->str != nullptr) {
-//        (*curInd)++;
-//    }
-//    Node *tmp = findInd(node->left, curInd, needInd);
-//    if (!tmp)
-//        tmp = findInd(node->right, curInd, needInd);
-//    return tmp;
-//}
+long long Tree::findInd(long long pos, int *curInd, int needInd) {
+    if (pos == FNULL) {
+        return FNULL;
+    }
+    FNode *node = readNode(pos);
+    if (*curInd == needInd && node->peakCount == 0) {
+        return pos;
+    }
+    if (node->peakCount == 0) {
+        (*curInd)++;
+    }
+    long long tmp = findInd(node->left, curInd, needInd);
+    if (!tmp)
+        tmp = findInd(node->right, curInd, needInd);
+    return tmp;
+}
 
 
-//Node &Tree::operator[](int ind) {
-//    int tmp = 0;
-//    Node *node = findInd(root, &tmp, ind);
-//    return *node;
-//}
+FNode &Tree::operator[](int ind) {
+    int tmp = 0;
+    long long pos = findInd(root, &tmp, ind);
+    FNode *node = readNode(pos);
+    return *node;
+}
 
-//int Tree::getSize() {
-//    return peakCount;
-//}
+int Tree::getSize() {
+    return peakCount;
+}
 
-
+void Tree::editStr(int ind, const char *str, size_t len) {
+    int tmp = 0;
+    long long pos = findInd(root, &tmp, ind);
+    seekp(pos + 2 * sizeof(long long) + sizeof(int));
+    write((char *) &len, sizeof(size_t));
+    write(str, len * sizeof(char));
+    seekp(0, ios::end);
+}
 

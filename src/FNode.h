@@ -8,6 +8,7 @@
 #include <cstring>
 
 #define FNULL (-1L)
+#define MAXLEN 10
 
 class FNode {
 public:
@@ -15,13 +16,12 @@ public:
 
     FNode(const char *str, size_t len);
 
-    ~FNode();
 
     int peakCount;
     long long left;
     long long right;
     size_t strLen;
-    char *str;
+    char str[MAXLEN]{};
 };
 
 
