@@ -12,7 +12,6 @@ Tree::Tree() {
 Tree::Tree(char *name) : basic_fstream(name, ios::in | ios::out | ios::binary) {
     if (!is_open()) {
         open(name, ios::in | ios::out | ios::binary | ios::trunc);
-        cout << "REOPEN\n";
         root = FNULL;
         peakCount = 0;
         write((char *) &peakCount, sizeof(int));
@@ -31,14 +30,11 @@ Tree::Tree(char *name) : basic_fstream(name, ios::in | ios::out | ios::binary) {
             read((char *) &peakCount, sizeof(int));
         }
     }
-    cout << "POSG " << tellg() << endl;
-    cout << "POSP " << tellp() << endl;
 }
 
 
 void Tree::insert(char *str) {
     FNode *node = readNode(root);
-//    cout << "WRITE TO " << tellp() << endl;
     addNode(node, root, str);
     peakCount++;
     updatePeakCount();
@@ -65,6 +61,7 @@ ostream &operator<<(ostream &os, Tree &tree) {
 Tree &Tree::operator<<(char *str) {
     if (strlen(str) <= MAXLEN)
         insert(str);
+    else throw out_of_range("charLimit");
     return *this;
 }
 
@@ -74,6 +71,7 @@ Tree &Tree::operator<<(ifstream &is) {
         is >> buf;
         if (strlen(buf) <= MAXLEN)
             insert(buf);
+        else throw out_of_range("charLimit");
     }
     return *this;
 }
@@ -84,29 +82,13 @@ long long Tree::createNode(char *str, size_t len) {
     FNode node(str, len);
     write((char *) &node.left, sizeof(long long));
     write((char *) &node.right, sizeof(long long));
-    write((char *) &node.peakCount, sizeof(int));
+    write((char *) &node.childCount, sizeof(int));
     write((char *) &node.strLen, sizeof(size_t));
     write(node.str, MAXLEN * sizeof(char));
     return pos;
 }
 
-void Tree::compression() {
-    seekp(0, ios::end);
-    long long endPos = tellp();
-    seekg(0, ios::beg);
-    FNode *node = new FNode;
-    while (tellp() != endPos) {
-        read((char *) &node->left, sizeof(long long));
-        read((char *) &node->right, sizeof(long long));
-        read((char *) &node->peakCount, sizeof(int));
-        read((char *) &node->strLen, sizeof(size_t));
-        read(node->str, MAXLEN * sizeof(char));
-    }
-
-}
-
 void Tree::copyNode(long long posNode, char *str, int mode) {
-//    FNode newNode(node->str, node->strLen);
     FNode *curNode = readNode(posNode);
     if (curNode == nullptr) return;
     int null = 0;
@@ -167,7 +149,7 @@ FNode *Tree::readNode(long long pos) {
         seekg(pos);
         read((char *) &node->left, sizeof(long long));
         read((char *) &node->right, sizeof(long long));
-        read((char *) &node->peakCount, sizeof(int));
+        read((char *) &node->childCount, sizeof(int));
         read((char *) &node->strLen, sizeof(size_t));
         read(node->str, MAXLEN * sizeof(char));
         seekg(0, fstream::end);
@@ -180,7 +162,7 @@ FNode *Tree::readNode(long long pos) {
 void Tree::printNode(long long pos, ostream &os) {
     FNode *node = readNode(pos);
     if (node != nullptr) {
-        if (node->peakCount == 0 && node->strLen != 0) {
+        if (node->childCount == 0 && node->strLen != 0) {
             for (int i = 0; i < node->strLen; ++i) {
                 os << node->str[i];
             }
@@ -196,10 +178,10 @@ long long Tree::findInd(long long pos, int *curInd, int needInd) {
         return FNULL;
     }
     FNode *node = readNode(pos);
-    if (*curInd == needInd && node->peakCount == 0 && node->strLen != 0) {
+    if (*curInd == needInd && node->childCount == 0 && node->strLen != 0) {
         return pos;
     }
-    if (node->peakCount == 0 && node->strLen != 0) {
+    if (node->childCount == 0 && node->strLen != 0) {
         (*curInd)++;
     }
     long long tmp = findInd(node->left, curInd, needInd);
@@ -215,7 +197,7 @@ FNode &Tree::operator[](int ind) {
     return *node;
 }
 
-int Tree::getSize() {
+int Tree::getSize() const {
     return peakCount;
 }
 

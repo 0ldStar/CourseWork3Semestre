@@ -5,14 +5,14 @@
 #include "FNode.h"
 
 FNode::FNode() {
-    peakCount = 0;
+    childCount = 0;
     left = FNULL;
     right = FNULL;
     strLen = 0;
 }
 
 FNode::FNode(const char *_str, size_t len) {
-    peakCount = 0;
+    childCount = 0;
     left = FNULL;
     right = FNULL;
     strLen = len;

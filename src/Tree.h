@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <exception>
 
 using namespace std;
 
@@ -30,14 +31,12 @@ public:
 
     Tree &operator<<(char *str);
 
-    void compression();
-
     void updatePeakCount();
 
     Tree &operator<<(ifstream &is);
 
 
-    int getSize();
+    int getSize() const;
 
 private:
 

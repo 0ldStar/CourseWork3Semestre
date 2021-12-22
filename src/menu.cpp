@@ -3,13 +3,10 @@
 //
 #include "menu.h"
 
-// Сжатие если m=0 и len = 0
 int menu() {
     int error, menuPos, exit, newDataCount;
     Tree tree(PATH);
     string buf;
-//    signal(SIGINT, SIG_IGN);
-//    signal(SIGBREAK, SIG_IGN);
     error = 0;
     menuPos = -1;
     exit = 0;
@@ -186,7 +183,6 @@ int clearData(Tree &tree, int &exit) {
             cout << "Warning!!!\n Are you really want to delete all data from base? (1-Yes/0-No)";
         } else {
             if (choose == 1) {
-//                cout << "Yeap";
                 tree.close();
                 tree.update();
                 tree.open("../data-sets/write.dat", ios::in | ios::out | ios::binary | ios::trunc);
@@ -194,7 +190,6 @@ int clearData(Tree &tree, int &exit) {
                     error = -1;
                     exit = 1;
                 }
-                //tree.LoadTree();
             }
             break;
         }

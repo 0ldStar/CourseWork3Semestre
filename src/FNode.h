@@ -16,7 +16,7 @@ public:
 
     FNode(const char *str, size_t len);
 
-    int peakCount;
+    int childCount;
     long long left;
     long long right;
     size_t strLen;
